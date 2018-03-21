@@ -1,7 +1,13 @@
-h1=title
+extends ../layout
 
-if currencylist.length
-  each ccy in currencylist
-    p=ccy.currencycode
-else
-  h1 CKF123
+block content
+  h1=title
+  - if (messages.info)
+    .message.info
+      span= messages.info
+
+  if currencylist.length
+    each ccy in currencylist
+      p=ccy.currencycode
+  else
+    h1 CKF123

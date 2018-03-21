@@ -11,16 +11,14 @@ module.exports = (passport) => {
     passwordField: 'password',
     passReqToCallback: true //passback entire req to call back
   } , function (req, username, password, done){
+
         if(!username || !password ) { return done(null, false, req.flash('message','All fields are required.')); }
 
         mysql.query("select id, username, salt, password from sf_guard_user where username = ?", [username]).then( rows => {
-          console.log("ckf: " + rows[0].username);
-          //console.log(err);
-          //if (err) return done(req.flash('message',err));
-
-          var salt = rows[0].salt;
 
           if(!rows.length){ return done(null, false, req.flash('message','Invalid username or password.')); }
+          var salt = rows[0].salt;
+
           salt = salt+''+password;
           var encPassword = crypto.createHash('sha1').update(salt).digest('hex');
           var dbPassword  = rows[0].password;

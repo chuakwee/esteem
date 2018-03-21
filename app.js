@@ -20,7 +20,6 @@ var session_configuration = {
   saveUninitialized: true
 };
 
-app.use(flash());
 app.use(session(session_configuration));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -36,6 +35,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(flash()); // flash must be used after cookie and session
 
 app.use('/', index);
 var authRoute = require('./routes/auth.js')(app,passport);
