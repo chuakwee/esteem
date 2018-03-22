@@ -14,16 +14,6 @@ var index = require('./routes/index');
 var config = require('./config/config.js').get(process.env.NODE_ENV);
 
 var app = express();
-var session_configuration = {
-  secret: config.session.secret,
-  resave: false,
-  saveUninitialized: true
-};
-
-app.use(session(session_configuration));
-app.use(passport.initialize());
-app.use(passport.session());
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -36,6 +26,16 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(flash()); // flash must be used after cookie and session
+
+var session_configuration = {
+  secret: config.session.secret,
+  resave: false,
+  saveUninitialized: true
+};
+
+app.use(session(session_configuration));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use('/', index);
 var authRoute = require('./routes/auth.js')(app,passport);

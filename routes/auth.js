@@ -7,7 +7,8 @@ module.exports = function(app, passport){
     successRedirect: '/affpayout',
     failureRedirect: '/login',
     successFlash: { message: "Welcome Back" },
-    failureFlash: true
+    failureFlash: { type: 'message' }, // cannot put true here, as it will not show error message if username or password is empty. The strategy function will never get called if username or password are empty, in which case Passport will immediately redirect to failureRedirect.
+    badRequestMessage: 'Username and Password cannot be empty'
   }));
 
   app.get('/logout', function(req, res){
