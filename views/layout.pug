@@ -12,8 +12,11 @@ html
     div(class='container-fluid')
       div(class='row')
         div(class='col-sm-12')
-          a(href='/logout') Logout
-          
+          ul
+            li: a(href='/logout') #{__('Logout')}
+            li: a(href='/setlanguage/zh') Chinese
+            li: a(href='/setlanguage/en') English
+
       div(class='row')
         div(class='col-sm-12')
           block content
