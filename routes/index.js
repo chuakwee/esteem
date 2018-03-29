@@ -1,9 +1,12 @@
 var express = require('express');
+var logger = require('../middleware/logger.js');
+
 var router = express.Router();
 
 
 router.get('/setlanguage/:lang', function(req, res, next){
-  console.log("lang: " + req.params.lang);
+  logger.debug("lang: " + req.params.lang);
+  logger.info("ckf 123");
   req.i18n.setLocale(req.params.lang);
 
   // or set it via the cookie

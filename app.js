@@ -1,7 +1,9 @@
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
-var logger = require('morgan');
+var morgan = require('morgan');
+var fs = require('fs');
+var rfs = require('rotating-file-stream');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var passport = require('passport');
@@ -16,7 +18,19 @@ var app = express();
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
+
+var logDirectory = path.join(__dirname, 'log');
+// ensure log directory exists
+fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
+
+// create a rotating write stream
+var accessLogStream = rfs('access.log', {
+  interval: '1d', // rotate daily
+  path: logDirectory
+});
+
+app.use(morgan('combined', {stream: accessLogStream})); // morgan need to be used before all the routes
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -52,20 +66,10 @@ i18n.expressBind(app, {
 app.use(function(req, res, next) {
   req.i18n.setLocaleFromQuery();
   req.i18n.setLocaleFromCookie();
-  //console.log("pp: " + req.params.lang + " pp2: " + req.cookies.locale);
+
   next();
 });
-/*
-app.use(function(req, res, next) {
-  console.log("ppq: ");
-    // express helper for natively supported engines
-    res.locals.__ = res.__ = function() {
-        return i18n.__.apply(req, arguments);
-    };
 
-    next();
-});
-*/
 // view engine setup. The view engine must be put after i18n config so that the templates can see the translations
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -83,11 +87,15 @@ app.use(function(req, res, next) {
   next(err);
 });
 
+var winston = require('./middleware/logger.js');
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // add this line to include winston logging
+  winston.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
 
   // render the error page
   res.status(err.status || 500);
